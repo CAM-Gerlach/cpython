@@ -12,6 +12,10 @@ document the API functions in detail.
 .. toctree::
    :maxdepth: 2
 
+   weakref.rst
+
+.. normal toctree
+
    intro.rst
    stable.rst
    veryhigh.rst

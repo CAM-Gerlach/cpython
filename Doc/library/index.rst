@@ -38,6 +38,10 @@ the `Python Package Index <https://pypi.org>`_.
 .. toctree::
    :maxdepth: 2
 
+   sqlite3.rst
+
+.. normal toctree
+
    intro.rst
    functions.rst
    constants.rst
