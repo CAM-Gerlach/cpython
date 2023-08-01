@@ -372,10 +372,10 @@ latex_documents = [
      'What\'s New in Python', 'A. M. Kuchling', 'howto'),
 ]
 # Collect all HOWTOs individually
-latex_documents.extend(('howto/' + fn[:-4], 'howto-' + fn[:-4] + '.tex',
-                        '', _stdauthor, 'howto')
-                       for fn in os.listdir('howto')
-                       if fn.endswith('.rst') and fn != 'index.rst')
+# latex_documents.extend(('howto/' + fn[:-4], 'howto-' + fn[:-4] + '.tex',
+                        # '', _stdauthor, 'howto')
+                       # for fn in os.listdir('howto')
+                       # if fn.endswith('.rst') and fn != 'index.rst')
 
 # Documents to append as an appendix to all manuals.
 latex_appendices = ['glossary', 'about', 'license', 'copyright']
