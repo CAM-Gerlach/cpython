@@ -22,6 +22,7 @@ extensions = [
     'pyspecific',
     'sphinx.ext.coverage',
     'sphinx.ext.doctest',
+    'deprecated_removed',
 ]
 
 # Skip if downstream redistributors haven't installed it

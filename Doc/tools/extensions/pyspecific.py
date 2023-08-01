@@ -189,7 +189,6 @@ class Availability(SphinxDirective):
         return platforms
 
 
-
 # Support for documenting audit event
 
 def audit_events_purge(app, env, docname):
@@ -402,62 +401,6 @@ class PyAbstractMethod(PyMethod):
     def run(self):
         self.name = 'py:method'
         return PyMethod.run(self)
-
-
-# Support for documenting version of removal in deprecations
-
-class DeprecatedRemoved(Directive):
-    has_content = True
-    required_arguments = 2
-    optional_arguments = 1
-    final_argument_whitespace = True
-    option_spec = {}
-
-    _deprecated_label = sphinx_gettext('Deprecated since version {deprecated}, will be removed in version {removed}')
-    _removed_label = sphinx_gettext('Deprecated since version {deprecated}, removed in version {removed}')
-
-    def run(self):
-        node = addnodes.versionmodified()
-        node.document = self.state.document
-        node['type'] = 'deprecated-removed'
-        version = (self.arguments[0], self.arguments[1])
-        node['version'] = version
-        env = self.state.document.settings.env
-        current_version = tuple(int(e) for e in env.config.version.split('.'))
-        removed_version = tuple(int(e) for e in self.arguments[1].split('.'))
-        if current_version < removed_version:
-            label = self._deprecated_label
-        else:
-            label = self._removed_label
-
-        text = label.format(deprecated=self.arguments[0], removed=self.arguments[1])
-        if len(self.arguments) == 3:
-            inodes, messages = self.state.inline_text(self.arguments[2],
-                                                      self.lineno+1)
-            para = nodes.paragraph(self.arguments[2], '', *inodes, translatable=False)
-            node.append(para)
-        else:
-            messages = []
-        if self.content:
-            self.state.nested_parse(self.content, self.content_offset, node)
-        if len(node):
-            if isinstance(node[0], nodes.paragraph) and node[0].rawsource:
-                content = nodes.inline(node[0].rawsource, translatable=True)
-                content.source = node[0].source
-                content.line = node[0].line
-                content += node[0].children
-                node[0].replace_self(nodes.paragraph('', '', content, translatable=False))
-            node[0].insert(0, nodes.inline('', '%s: ' % text,
-                                           classes=['versionmodified']))
-        else:
-            para = nodes.paragraph('', '',
-                                   nodes.inline('', '%s.' % text,
-                                                classes=['versionmodified']),
-                                   translatable=False)
-            node.append(para)
-        env = self.state.document.settings.env
-        env.get_domain('changeset').note_changeset(node)
-        return [node] + messages
 
 
 # Support for including Misc/NEWS
@@ -703,7 +646,6 @@ def setup(app):
     app.add_directive('availability', Availability)
     app.add_directive('audit-event', AuditEvent)
     app.add_directive('audit-event-table', AuditEventListDirective)
-    app.add_directive('deprecated-removed', DeprecatedRemoved)
     app.add_builder(PydocTopicsBuilder)
     app.add_object_type('opcode', 'opcode', '%s (opcode)', parse_opcode_signature)
     app.add_object_type('pdbcommand', 'pdbcmd', '%s (pdb command)', parse_pdb_command)
