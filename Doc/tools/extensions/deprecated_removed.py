@@ -1,12 +1,12 @@
 """Sphinx extension adding a deprecated directive listing removal version."""
 
 from docutils import nodes
-from docutils.parsers.rst import Directive
 from sphinx import addnodes
 from sphinx.locale import _ as sphinx_gettext
+from sphinx.util.docutils import SphinxDirective
 
 
-class DeprecatedRemoved(Directive):
+class DeprecatedRemoved(SphinxDirective):
     """Document deprecations and removals using structured data."""
 
     has_content = True
@@ -19,22 +19,25 @@ class DeprecatedRemoved(Directive):
     _removed_label = "Deprecated since version {deprecated}, removed in version {removed}"
 
     def run(self):
+        # Create and set up target doctree node
         node = addnodes.versionmodified()
         node.document = self.state.document
         node["type"] = "deprecated-removed"
         version = (self.arguments[0], self.arguments[1])
         node["version"] = version
-        env = self.state.document.settings.env
-        current_version = tuple(int(e) for e in env.config.version.split("."))
+
+        # Parse versions and generate label from them
+        current_version = tuple(int(e) for e in self.config.version.split("."))
         removed_version = tuple(int(e) for e in self.arguments[1].split("."))
         if current_version < removed_version:
             label = self._deprecated_label
         else:
             label = self._removed_label
-
         label = sphinx_gettext(label)
         text = label.format(
             deprecated=self.arguments[0], removed=self.arguments[1])
+
+        # Parse inline and content body text
         if len(self.arguments) == 3:
             inodes, messages = self.state.inline_text(
                 self.arguments[2], self.lineno + 1)
@@ -45,6 +48,8 @@ class DeprecatedRemoved(Directive):
             messages = []
         if self.content:
             self.state.nested_parse(self.content, self.content_offset, node)
+
+        # Transform inline content to paragraph nodes
         if len(node):
             if isinstance(node[0], nodes.paragraph) and node[0].rawsource:
                 content = nodes.inline(node[0].rawsource, translatable=True)
@@ -54,17 +59,18 @@ class DeprecatedRemoved(Directive):
                 node[0].replace_self(
                     nodes.paragraph("", "", content, translatable=False))
             node[0].insert(
-                0, nodes.inline("", "%s: " % text, classes=["versionmodified"]))
+                0, nodes.inline("", f"{text}: ", classes=["versionmodified"]))
         else:
             para = nodes.paragraph(
                 "",
                 "",
-                nodes.inline("", "%s." % text, classes=["versionmodified"]),
+                nodes.inline("", f"{text}.", classes=["versionmodified"]),
                 translatable=False,
             )
             node.append(para)
-        env = self.state.document.settings.env
-        env.get_domain("changeset").note_changeset(node)
+
+        # Note changes and return parsed node
+        self.env.get_domain("changeset").note_changeset(node)
         return [node] + messages
 
 
