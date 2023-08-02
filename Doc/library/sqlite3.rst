@@ -184,7 +184,7 @@ Now, insert three more rows by calling
    con.commit()  # Remember to commit the transaction after executing INSERT.
 
 Notice that ``?`` placeholders are used to bind ``data`` to the query.
-Always use placeholders instead of :ref:`string formatting <tut-formatting>`
+Always use placeholders instead of string formatting
 to bind Python values to SQL statements,
 to avoid `SQL injection attacks`_
 (see :ref:`sqlite3-placeholders` for more details).
@@ -269,7 +269,7 @@ Module functions
        You can pass ``":memory:"`` to create an `SQLite database existing only
        in memory <https://sqlite.org/inmemorydb.html>`_, and open a connection
        to it.
-   :type database: :term:`path-like object`
+   :type database: `path-like object`
 
    :param float timeout:
        How many seconds the connection should wait before raising
@@ -347,7 +347,7 @@ Module functions
       The *uri* parameter.
 
    .. versionchanged:: 3.7
-      *database* can now also be a :term:`path-like object`, not only a string.
+      *database* can now also be a `path-like object`, not only a string.
 
    .. versionadded:: 3.10
       The ``sqlite3.connect/handle`` auditing event.
@@ -420,7 +420,7 @@ Module functions
 
 .. function:: register_adapter(type, adapter, /)
 
-   Register an *adapter* :term:`callable` to adapt the Python type *type*
+   Register an *adapter* `callable` to adapt the Python type *type*
    into an SQLite type.
    The adapter is called with a Python object of type *type* as its sole
    argument, and must return a value of a
@@ -428,7 +428,7 @@ Module functions
 
 .. function:: register_converter(typename, converter, /)
 
-   Register the *converter* :term:`callable` to convert SQLite objects of type
+   Register the *converter* `callable` to convert SQLite objects of type
    *typename* into a Python object of a specific type.
    The converter is invoked for all SQLite values of type *typename*;
    it is passed a :class:`bytes` object and should return an object of the
@@ -491,7 +491,7 @@ Module constants
           SQLITE_DENY
           SQLITE_IGNORE
 
-   Flags that should be returned by the *authorizer_callback* :term:`callable`
+   Flags that should be returned by the *authorizer_callback* `callable`
    passed to :meth:`Connection.set_authorizer`, to indicate whether:
 
    * Access is allowed (:const:`!SQLITE_OK`),
@@ -642,7 +642,7 @@ Connection objects
 
       Create and return a :class:`Cursor` object.
       The cursor method accepts a single optional parameter *factory*. If
-      supplied, this must be a :term:`callable` returning
+      supplied, this must be a `callable` returning
       an instance of :class:`Cursor` or its subclasses.
 
    .. method:: blobopen(table, column, row, /, *, readonly=False, name="main")
@@ -736,11 +736,11 @@ Connection objects
           If ``-1``, it may take any number of arguments.
 
       :param func:
-          A :term:`callable` that is called when the SQL function is invoked.
+          A `callable` that is called when the SQL function is invoked.
           The callable must return :ref:`a type natively supported by SQLite
           <sqlite3-types>`.
           Set to ``None`` to remove an existing SQL function.
-      :type func: :term:`callback` | None
+      :type func: `callback` | None
 
       :param bool deterministic:
           If ``True``, the created SQL function is marked as
@@ -786,7 +786,7 @@ Connection objects
           is controlled by *n_arg*.
 
           Set to ``None`` to remove an existing SQL aggregate function.
-      :type aggregate_class: :term:`class` | None
+      :type aggregate_class: `class` | None
 
       Example:
 
@@ -847,7 +847,7 @@ Connection objects
           If used with a version of SQLite older than 3.25.0,
           which does not support aggregate window functions.
 
-      :type aggregate_class: :term:`class` | None
+      :type aggregate_class: `class` | None
 
       .. versionadded:: 3.11
 
@@ -958,7 +958,7 @@ Connection objects
 
    .. method:: set_authorizer(authorizer_callback)
 
-      Register :term:`callable` *authorizer_callback* to be invoked
+      Register `callable` *authorizer_callback* to be invoked
       for each attempt to access a column of a table in the database.
       The callback should return one of :const:`SQLITE_OK`,
       :const:`SQLITE_DENY`, or :const:`SQLITE_IGNORE`
@@ -984,7 +984,7 @@ Connection objects
 
    .. method:: set_progress_handler(progress_handler, n)
 
-      Register :term:`callable` *progress_handler* to be invoked for every *n*
+      Register `callable` *progress_handler* to be invoked for every *n*
       instructions of the SQLite virtual machine. This is useful if you want to
       get called from SQLite during long-running operations, for example to update
       a GUI.
@@ -999,7 +999,7 @@ Connection objects
 
    .. method:: set_trace_callback(trace_callback)
 
-      Register :term:`callable` *trace_callback* to be invoked
+      Register `callable` *trace_callback* to be invoked
       for each SQL statement that is actually executed by the SQLite backend.
 
       The only argument passed to the callback is the statement (as
@@ -1036,7 +1036,7 @@ Connection objects
          default, because some platforms (notably macOS) have SQLite
          libraries which are compiled without this feature.
          To get loadable extension support,
-         you must pass the :option:`--enable-loadable-sqlite-extensions` option
+         you must pass the `--enable-loadable-sqlite-extensions` option
          to :program:`configure`.
 
       .. audit-event:: sqlite3.enable_load_extension connection,enabled sqlite3.Connection.enable_load_extension
@@ -1117,7 +1117,7 @@ Connection objects
 
    .. method:: iterdump
 
-      Return an :term:`iterator` to dump the database as SQL source code.
+      Return an `iterator` to dump the database as SQL source code.
       Useful when saving an in-memory database for later restoration.
       Similar to the ``.dump`` command in the :program:`sqlite3` shell.
 
@@ -1150,13 +1150,13 @@ Connection objects
           Defaults to ``-1``.
 
       :param progress:
-          If set to a :term:`callable`,
+          If set to a `callable`,
           it is invoked with three integer arguments for every backup iteration:
           the *status* of the last iteration,
           the *remaining* number of pages still to be copied,
           and the *total* number of pages.
           Defaults to ``None``.
-      :type progress: :term:`callback` | None
+      :type progress: `callback` | None
 
       :param str name:
           The name of the database to back up.
@@ -1415,7 +1415,7 @@ Connection objects
 
    .. attribute:: text_factory
 
-      A :term:`callable` that accepts a :class:`bytes` parameter
+      A `callable` that accepts a :class:`bytes` parameter
       and returns a text representation of it.
       The callable is invoked for SQLite values with the ``TEXT`` data type.
       By default, this attribute is set to :class:`str`.
@@ -1471,7 +1471,7 @@ Cursor objects
    or by using any of the :ref:`connection shortcut methods
    <sqlite3-connection-shortcuts>`.
 
-   Cursor objects are :term:`iterators <iterator>`,
+   Cursor objects are `iterators <iterator>`,
    meaning that if you :meth:`~Cursor.execute` a ``SELECT`` query,
    you can simply iterate over the cursor to fetch the resulting rows:
 
@@ -1513,9 +1513,9 @@ Cursor objects
       :param parameters:
          Python values to bind to placeholders in *sql*.
          A :class:`!dict` if named placeholders are used.
-         A :term:`!sequence` if unnamed placeholders are used.
+         A `!sequence` if unnamed placeholders are used.
          See :ref:`sqlite3-placeholders`.
-      :type parameters: :class:`dict` | :term:`sequence`
+      :type parameters: :class:`dict` | `sequence`
 
       :raises ProgrammingError:
          If *sql* contains more than one SQL statement.
@@ -1549,10 +1549,10 @@ Cursor objects
          A single SQL DML statement.
 
       :param parameters:
-         An :term:`!iterable` of parameters to bind with
+         An `!iterable` of parameters to bind with
          the placeholders in *sql*.
          See :ref:`sqlite3-placeholders`.
-      :type parameters: :term:`iterable`
+      :type parameters: `iterable`
 
       :raises ProgrammingError:
          If *sql* contains more than one SQL statement,
@@ -1715,7 +1715,7 @@ Cursor objects
       Control how a row fetched from this :class:`!Cursor` is represented.
       If ``None``, a row is represented as a :class:`tuple`.
       Can be set to the included :class:`sqlite3.Row`;
-      or a :term:`callable` that accepts two arguments,
+      or a `callable` that accepts two arguments,
       a :class:`Cursor` object and the :class:`!tuple` of row values,
       and returns a custom object representing an SQLite row.
 
@@ -1742,7 +1742,7 @@ Row objects
    A :class:`!Row` instance serves as a highly optimized
    :attr:`~Connection.row_factory` for :class:`Connection` objects.
    It supports iteration, equality testing, :func:`len`,
-   and :term:`mapping` access by column name and index.
+   and `mapping` access by column name and index.
 
    Two :class:`!Row` objects compare equal
    if they have identical column names and values.
@@ -1768,12 +1768,12 @@ Blob objects
 
 .. class:: Blob
 
-   A :class:`Blob` instance is a :term:`file-like object`
+   A :class:`Blob` instance is a `file-like object`
    that can read and write data in an SQLite :abbr:`BLOB (Binary Large OBject)`.
    Call :func:`len(blob) <len>` to get the size (number of bytes) of the blob.
-   Use indices and :term:`slices <slice>` for direct access to the blob data.
+   Use indices and `slices <slice>` for direct access to the blob data.
 
-   Use the :class:`Blob` as a :term:`context manager` to ensure that the blob
+   Use the :class:`Blob` as a `context manager` to ensure that the blob
    handle is closed after use.
 
    .. testcode::
@@ -1863,7 +1863,7 @@ The exception hierarchy is defined by the DB-API 2.0 (:pep:`249`).
 .. exception:: Error
 
    The base class of the other exceptions in this module.
-   Use this to catch all errors with one single :keyword:`except` statement.
+   Use this to catch all errors with one single `except` statement.
    ``Error`` is a subclass of :exc:`Exception`.
 
    If the exception originated from within the SQLite library,
@@ -2029,7 +2029,7 @@ Command-line interface
 ^^^^^^^^^^^^^^^^^^^^^^
 
 The :mod:`!sqlite3` module can be invoked as a script,
-using the interpreter's :option:`-m` switch,
+using the interpreter's `-m` switch,
 in order to provide a simple SQLite shell.
 The argument signature is as follows::
 
@@ -2081,7 +2081,7 @@ argument of the cursor's :meth:`~Cursor.execute` method.
 An SQL statement may use one of two kinds of placeholders:
 question marks (qmark style) or named placeholders (named style).
 For the qmark style, *parameters* must be a
-:term:`sequence` whose length must match the number of placeholders,
+`sequence` whose length must match the number of placeholders,
 or a :exc:`ProgrammingError` is raised.
 For the named style, *parameters* must be
 an instance of a :class:`dict` (or a subclass),
@@ -2402,7 +2402,7 @@ How to use the connection context manager
 A :class:`Connection` object can be used as a context manager that
 automatically commits or rolls back open transactions when leaving the body of
 the context manager.
-If the body of the :keyword:`with` statement finishes without exceptions,
+If the body of the `with` statement finishes without exceptions,
 the transaction is committed.
 If this commit fails,
 or if the body of the ``with`` statement raises an uncaught exception,
@@ -2558,7 +2558,7 @@ Using it, queries now return a :class:`!dict` instead of a :class:`!tuple`:
    ...     print(row)
    {'a': 1, 'b': 2}
 
-The following row factory returns a :term:`named tuple`:
+The following row factory returns a `named tuple`:
 
 .. testcode::
 

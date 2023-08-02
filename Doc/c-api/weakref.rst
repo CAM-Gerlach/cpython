@@ -53,10 +53,10 @@ as much as it can.
 
 .. c:function:: int PyWeakref_GetRef(PyObject *ref, PyObject **pobj)
 
-   Get a :term:`strong reference` to the referenced object from a weak
+   Get a `strong reference` to the referenced object from a weak
    reference, *ref*, into *\*pobj*.
 
-   * On success, set *\*pobj* to a new :term:`strong reference` to the
+   * On success, set *\*pobj* to a new `strong reference` to the
      referenced object and return 1.
    * If the reference is dead, set *\*pobj* to ``NULL`` and return 0.
    * On error, raise an exception and return -1.
@@ -66,12 +66,12 @@ as much as it can.
 
 .. c:function:: PyObject* PyWeakref_GetObject(PyObject *ref)
 
-   Return a :term:`borrowed reference` to the referenced object from a weak
+   Return a `borrowed reference` to the referenced object from a weak
    reference, *ref*.  If the referent is no longer live, returns ``Py_None``.
 
    .. note::
 
-      This function returns a :term:`borrowed reference` to the referenced object.
+      This function returns a `borrowed reference` to the referenced object.
       This means that you should always call :c:func:`Py_INCREF` on the object
       except when it cannot be destroyed before the last usage of the borrowed
       reference.
