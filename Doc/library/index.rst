@@ -34,6 +34,12 @@ hundreds of thousands of components (from individual programs and modules to
 packages and entire application development frameworks), available from
 the `Python Package Index <https://pypi.org>`_.
 
+.. function:: test(builtin=True)
+
+   A test builtin to deprecate.
+
+   .. deprecated-removed:: 3.12 3.13 Test builtin is deprecated.
+
 .. We don't use :numbered: option for the TOC below as it enforces
    numbered sections for the entire stdlib docs.  If desired,
    :numbered: can be enabled on a per-module basis.

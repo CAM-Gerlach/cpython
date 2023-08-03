@@ -10,6 +10,8 @@ specific object types which directly implement weak references.  The first is a
 simple reference object, and the second acts as a proxy for the original object
 as much as it can.
 
+.. deprecated-removed:: 3.9 3.11 This is a test deprecation in the
+   :ref:`weakrefobjects` section.
 
 .. c:function:: int PyWeakref_Check(PyObject *ob)
 
@@ -63,6 +65,9 @@ as much as it can.
 
    .. versionadded:: 3.13
 
+.. deprecated-removed:: 3.13 3.15
+
+   :c:func:`PyWeakref_GetObject` :c:func:`PyWeakref_GET_OBJECT`
 
 .. c:function:: PyObject* PyWeakref_GetObject(PyObject *ref)
 
@@ -83,9 +88,6 @@ as much as it can.
 .. c:function:: PyObject* PyWeakref_GET_OBJECT(PyObject *ref)
 
    Similar to :c:func:`PyWeakref_GetObject`, but does no error checking.
-
-   .. deprecated-removed:: 3.13 3.15
-      Use :c:func:`PyWeakref_GetRef` instead.
 
 
 .. c:function:: void PyObject_ClearWeakRefs(PyObject *object)

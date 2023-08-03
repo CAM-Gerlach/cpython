@@ -8,6 +8,10 @@
 
 **Source code:** :source:`Lib/sqlite3/`
 
+.. deprecated-removed:: 3.14 4.0
+
+   This is a test deprecation. This is only a test.
+
 .. Make sure we always doctest the tutorial with an empty database.
 
 .. testsetup::
@@ -560,6 +564,8 @@ Module constants
    .. versionchanged:: 3.11
       Set *threadsafety* dynamically instead of hard-coding it to ``1``.
 
+.. deprecated-removed:: 3.12 3.13 :data:`sqlite3.version` :data:`sqlite3.version_info`
+
 .. data:: version
 
    Version number of this module as a :class:`string <str>`.
@@ -574,11 +580,6 @@ Module constants
 
    Version number of this module as a :class:`tuple` of :class:`integers <int>`.
    This is not the version of the SQLite library.
-
-   .. deprecated-removed:: 3.12 3.14
-      This constant used to reflect the version number of the ``pysqlite``
-      package, a third-party library which used to upstream changes to
-      :mod:`!sqlite3`. Today, it carries no meaning or practical value.
 
 .. _sqlite3-dbconfig-constants:
 
@@ -1498,6 +1499,10 @@ Cursor objects
 
    A :class:`Cursor` instance has the following attributes and methods.
 
+   .. deprecated-removed:: 3.12 3.14 :meth:`execute` :meth:`executemany`
+
+      This is a test deprecation of both execute and executemany.
+
    .. index:: single: ? (question mark); in SQL statements
    .. index:: single: : (colon); in SQL statements
 
@@ -1575,15 +1580,6 @@ Cursor objects
          including DML statements with `RETURNING clauses`_.
 
       .. _RETURNING clauses: https://www.sqlite.org/lang_returning.html
-
-      .. deprecated-removed:: 3.12 3.14
-
-         :exc:`DeprecationWarning` is emitted if
-         :ref:`named placeholders <sqlite3-placeholders>` are used
-         and the items in *parameters* are sequences
-         instead of :class:`dict`\s.
-         Starting with Python 3.14, :exc:`ProgrammingError` will
-         be raised instead.
 
    .. method:: executescript(sql_script, /)
 
@@ -2037,17 +2033,27 @@ The argument signature is as follows::
 
 Type ``.quit`` or CTRL-D to exit the shell.
 
-.. program:: python -m sqlite3 [-h] [-v] [filename] [sql]
-
 .. option:: -h, --help
 
    Print CLI help.
+
+   .. deprecated-removed:: 3.7 3.13
+
+.. program:: python -m sqlite3
 
 .. option:: -v, --version
 
    Print underlying SQLite library version.
 
+   .. deprecated-removed:: 3.7 3.13
+
 .. versionadded:: 3.12
+
+.. envvar:: TEST_VAR
+
+   A test environment variable.
+
+   .. deprecated-removed:: 3.7 3.11
 
 
 .. _sqlite3-howtos:
@@ -2699,3 +2705,13 @@ regardless of the value of :attr:`~Connection.isolation_level`.
 
 .. _SQLite transaction behaviour:
    https://www.sqlite.org/lang_transaction.html#deferred_immediate_and_exclusive_transactions
+
+
+.. module:: sqlite3.testmod
+   :synopsis: A test module for sqlite3.
+
+.. py:function:: testfunc(test_arg="test_val")
+
+   This is a test function for :mod:`sqlite3`.
+
+   .. deprecated-removed:: 3.12 3.13
