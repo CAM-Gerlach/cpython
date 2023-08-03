@@ -22,9 +22,9 @@ class DeprecatedRemoved(SphinxDirective):
         # Create and set up target doctree node
         node = addnodes.versionmodified()
         node.document = self.state.document
-        node["type"] = "deprecated-removed"
-        version = (self.arguments[0], self.arguments[1])
-        node["version"] = version
+        self.set_source_info(node)
+        node["type"] = self.name
+        node["version"] = tuple(self.arguments[:2])
 
         # Parse versions and generate label from them
         current_version = tuple(int(e) for e in self.config.version.split("."))
@@ -43,15 +43,18 @@ class DeprecatedRemoved(SphinxDirective):
                 self.arguments[2], self.lineno + 1)
             para = nodes.paragraph(
                 self.arguments[2], "", *inodes, translatable=False)
+            self.set_source_info(para)
             node.append(para)
         else:
             messages = []
         if self.content:
             self.state.nested_parse(self.content, self.content_offset, node)
 
-        # Transform inline content to paragraph nodes
-        if len(node):
-            if isinstance(node[0], nodes.paragraph) and node[0].rawsource:
+        # Transform content to a single paragraph with inline nodes
+        classes = ["versionmodified", "deprecated", "removed"]
+        if len(node) > 0 and isinstance(node[0], nodes.paragraph):
+            # If the contents start with a paragraph, make it translatable
+            if node[0].rawsource:
                 content = nodes.inline(node[0].rawsource, translatable=True)
                 content.source = node[0].source
                 content.line = node[0].line
@@ -59,12 +62,20 @@ class DeprecatedRemoved(SphinxDirective):
                 node[0].replace_self(
                     nodes.paragraph("", "", content, translatable=False))
             node[0].insert(
-                0, nodes.inline("", f"{text}: ", classes=["versionmodified"]))
+                0, nodes.inline("", f"{text}: ", classes=classes))
+        elif len(node) > 0:
+            para = nodes.paragraph(
+                "",
+                "",
+                nodes.inline("", f"{text}: ", classes=classes),
+                translatable=False,
+            )
+            node.insert(0, para)
         else:
             para = nodes.paragraph(
                 "",
                 "",
-                nodes.inline("", f"{text}.", classes=["versionmodified"]),
+                nodes.inline("", f"{text}.", classes=classes),
                 translatable=False,
             )
             node.append(para)
