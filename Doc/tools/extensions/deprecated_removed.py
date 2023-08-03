@@ -15,34 +15,37 @@ class DeprecatedRemoved(SphinxDirective):
     final_argument_whitespace = True
     option_spec = {}
 
-    _deprecated_label = "Deprecated since version {deprecated}, will be removed in version {removed}"
-    _removed_label = "Deprecated since version {deprecated}, removed in version {removed}"
+    _deprecated_label = "Deprecated since version {deprecated}"
+    _removed_label = "removed in version {removed}"
 
     def run(self):
+        # Parse arguments
+        args = self.arguments.copy()
+        args = args + [None] if len(args) == 2 else args
+        deprecated_arg, removed_arg, content_arg = args
+
         # Create and set up target doctree node
         node = addnodes.versionmodified()
         node.document = self.state.document
         self.set_source_info(node)
         node["type"] = self.name
-        node["version"] = tuple(self.arguments[:2])
+        node["version"] = (deprecated_arg, removed_arg)
 
         # Parse versions and generate label from them
         current_version = tuple(int(e) for e in self.config.version.split("."))
-        removed_version = tuple(int(e) for e in self.arguments[1].split("."))
-        if current_version < removed_version:
-            label = self._deprecated_label
-        else:
-            label = self._removed_label
+        removed_version = tuple(int(e) for e in removed_arg.split("."))
+        is_removed = current_version >= removed_version
+        will_be = '' if is_removed else "will be "
+        label = f"{self._deprecated_label}, {will_be}{self._removed_label}"
         label = sphinx_gettext(label)
-        text = label.format(
-            deprecated=self.arguments[0], removed=self.arguments[1])
+        text = label.format(deprecated=deprecated_arg, removed=removed_arg)
 
         # Parse inline and content body text
-        if len(self.arguments) == 3:
+        if content_arg:
             inodes, messages = self.state.inline_text(
-                self.arguments[2], self.lineno + 1)
+                content_arg, self.lineno + 1)
             para = nodes.paragraph(
-                self.arguments[2], "", *inodes, translatable=False)
+                content_arg, "", *inodes, translatable=False)
             self.set_source_info(para)
             node.append(para)
         else:
@@ -52,6 +55,9 @@ class DeprecatedRemoved(SphinxDirective):
 
         # Transform content to a single paragraph with inline nodes
         classes = ["versionmodified", "deprecated", "removed"]
+        label_text = f"{text}: " if len(node) > 0 else f"{text}."
+        label_node = nodes.inline("", label_text, classes=classes)
+        label_para = nodes.paragraph("", "", label_node, translatable=False)
         if len(node) > 0 and isinstance(node[0], nodes.paragraph):
             # If the contents start with a paragraph, make it translatable
             if node[0].rawsource:
@@ -61,24 +67,11 @@ class DeprecatedRemoved(SphinxDirective):
                 content += node[0].children
                 node[0].replace_self(
                     nodes.paragraph("", "", content, translatable=False))
-            node[0].insert(
-                0, nodes.inline("", f"{text}: ", classes=classes))
+            node[0].insert(0, label_node)
         elif len(node) > 0:
-            para = nodes.paragraph(
-                "",
-                "",
-                nodes.inline("", f"{text}: ", classes=classes),
-                translatable=False,
-            )
-            node.insert(0, para)
+            node.insert(0, label_para)
         else:
-            para = nodes.paragraph(
-                "",
-                "",
-                nodes.inline("", f"{text}.", classes=classes),
-                translatable=False,
-            )
-            node.append(para)
+            node.append(label_para)
 
         # Note changes and return parsed node
         self.env.get_domain("changeset").note_changeset(node)
