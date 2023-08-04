@@ -18,44 +18,41 @@ class DeprecatedRemoved(SphinxDirective):
     _deprecated_label = "Deprecated since version {deprecated}"
     _removed_label = "removed in version {removed}"
 
-    def run(self):
-        # Parse arguments
-        args = self.arguments.copy()
-        args = args + [None] if len(args) == 2 else args
-        deprecated_arg, removed_arg, content_arg = args
+    def _generate_label_text(self, deprecated_arg, removed_arg):
+        """Parse versions and generate label from them."""
+        current_version = tuple(int(e) for e in self.config.version.split("."))
+        removed_version = tuple(int(e) for e in removed_arg.split("."))
+        is_removed = current_version >= removed_version
+        will_be = "" if is_removed else "will be "
+        label = f"{self._deprecated_label}, {will_be}{self._removed_label}"
+        label = sphinx_gettext(label)
+        text = label.format(deprecated=deprecated_arg, removed=removed_arg)
+        return text
 
-        # Create and set up target doctree node
+    def _create_node(self, deprecated_arg, removed_arg):
+        """Create and set up target doctree node."""
         node = addnodes.versionmodified()
         node.document = self.state.document
         self.set_source_info(node)
         node["type"] = self.name
         node["version"] = (deprecated_arg, removed_arg)
+        return node
 
-        # Parse versions and generate label from them
-        current_version = tuple(int(e) for e in self.config.version.split("."))
-        removed_version = tuple(int(e) for e in removed_arg.split("."))
-        is_removed = current_version >= removed_version
-        will_be = '' if is_removed else "will be "
-        label = f"{self._deprecated_label}, {will_be}{self._removed_label}"
-        label = sphinx_gettext(label)
-        text = label.format(deprecated=deprecated_arg, removed=removed_arg)
+    def _parse_content_arg(self, content_arg, *, node):
+        """Parse inline directive content argument into the node."""
+        if not content_arg:
+            return []
 
-        # Parse inline and content body text
-        if content_arg:
-            inodes, messages = self.state.inline_text(
-                content_arg, self.lineno + 1)
-            para = nodes.paragraph(
-                content_arg, "", *inodes, translatable=False)
-            self.set_source_info(para)
-            node.append(para)
-        else:
-            messages = []
-        if self.content:
-            self.state.nested_parse(self.content, self.content_offset, node)
+        inodes, messages = self.state.inline_text(content_arg, self.lineno + 1)
+        para = nodes.paragraph(content_arg, "", *inodes, translatable=False)
+        self.set_source_info(para)
+        node.append(para)
+        return messages
 
-        # Transform content to a single paragraph with inline nodes
+    def _add_label_node(self, label_text, *, node):
+        """Add generated label to node content and restructure accordingly."""
         classes = ["versionmodified", "deprecated", "removed"]
-        label_text = f"{text}: " if len(node) > 0 else f"{text}."
+        label_text = f"{label_text}: " if len(node) > 0 else f"{label_text}."
         label_node = nodes.inline("", label_text, classes=classes)
         label_para = nodes.paragraph("", "", label_node, translatable=False)
         if len(node) > 0 and isinstance(node[0], nodes.paragraph):
@@ -66,12 +63,31 @@ class DeprecatedRemoved(SphinxDirective):
                 content.line = node[0].line
                 content += node[0].children
                 node[0].replace_self(
-                    nodes.paragraph("", "", content, translatable=False))
+                    nodes.paragraph("", "", content, translatable=False)
+                )
             node[0].insert(0, label_node)
         elif len(node) > 0:
             node.insert(0, label_para)
         else:
             node.append(label_para)
+
+    def run(self):
+        # Parse arguments
+        args = self.arguments.copy()
+        args = args + [None] if len(args) == 2 else args
+        deprecated_arg, removed_arg, content_arg = args
+
+        # Generate the label text
+        label_text = self._generate_label_text(deprecated_arg, removed_arg)
+
+        # Create node and parse inline and body content into it
+        node = self._create_node(deprecated_arg, removed_arg)
+        messages = self._parse_content_arg(content_arg=content_arg, node=node)
+        if self.content:
+            self.state.nested_parse(self.content, self.content_offset, node)
+
+        # Add label text to doctree node
+        self._add_label_node(label_text=label_text, node=node)
 
         # Note changes and return parsed node
         self.env.get_domain("changeset").note_changeset(node)
