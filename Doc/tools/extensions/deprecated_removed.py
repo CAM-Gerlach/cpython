@@ -1,9 +1,21 @@
 """Sphinx extension adding a deprecated directive listing removal version."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, cast
+
 from docutils import nodes
-from sphinx import addnodes
+from sphinx.addnodes import versionmodified
 from sphinx.locale import _ as sphinx_gettext
 from sphinx.util.docutils import SphinxDirective
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from docutils.nodes import Node
+    from sphinx.application import Sphinx
+    from sphinx.domains.changeset import ChangeSetDomain
+    from sphinx.util.typing import OptionSpec
 
 
 class DeprecatedRemoved(SphinxDirective):
@@ -13,12 +25,14 @@ class DeprecatedRemoved(SphinxDirective):
     required_arguments = 2
     optional_arguments = 1
     final_argument_whitespace = True
-    option_spec = {}
+    option_spec: OptionSpec = {}
 
     _deprecated_label = "Deprecated since version {deprecated}"
     _removed_label = "removed in version {removed}"
 
-    def _generate_label_text(self, deprecated_arg, removed_arg):
+    def _generate_label_text(
+        self, deprecated_arg: str, removed_arg: str
+    ) -> str:
         """Parse versions and generate label from them."""
         current_version = tuple(int(e) for e in self.config.version.split("."))
         removed_version = tuple(int(e) for e in removed_arg.split("."))
@@ -29,16 +43,20 @@ class DeprecatedRemoved(SphinxDirective):
         text = label.format(deprecated=deprecated_arg, removed=removed_arg)
         return text
 
-    def _create_node(self, *, deprecated_arg):
+    def _create_versionmodified_node(
+        self, *, deprecated_arg: str
+    ) -> versionmodified:
         """Create and set up target doctree node."""
-        node = addnodes.versionmodified()
+        node = versionmodified()
         node.document = self.state.document
         self.set_source_info(node)
         node["type"] = self.name
         node["version"] = deprecated_arg
         return node
 
-    def _parse_content_arg(self, content_arg, *, node):
+    def _parse_content_arg(
+        self, content_arg: str, *, node: versionmodified
+    ) -> list[Node]:
         """Parse inline directive content argument into the node."""
         if not content_arg:
             return []
@@ -47,9 +65,11 @@ class DeprecatedRemoved(SphinxDirective):
         para = nodes.paragraph(content_arg, "", *inodes, translatable=False)
         self.set_source_info(para)
         node.append(para)
-        return messages
+        return cast("list[Node]", messages)
 
-    def _add_label_node(self, label_text, *, node):
+    def _add_label_node(
+        self, label_text: str, *, node: versionmodified
+    ) -> None:
         """Add generated label to node content and restructure accordingly."""
         classes = ["versionmodified", "deprecated", "removed"]
         label_text = f"{label_text}: " if len(node) > 0 else f"{label_text}."
@@ -73,7 +93,7 @@ class DeprecatedRemoved(SphinxDirective):
         else:
             node.insert(0, label_para)
 
-    def run(self):
+    def run(self) -> list[Node]:
         # Parse arguments
         args = self.arguments.copy()
         args = args + [None] if len(args) == 2 else args
@@ -83,7 +103,7 @@ class DeprecatedRemoved(SphinxDirective):
         label_text = self._generate_label_text(deprecated_arg, removed_arg)
 
         # Create node and parse inline and body content into it
-        node = self._create_node(deprecated_arg=deprecated_arg)
+        node = self._create_versionmodified_node(deprecated_arg=deprecated_arg)
         messages = self._parse_content_arg(content_arg=content_arg, node=node)
         if self.content:
             self.state.nested_parse(self.content, self.content_offset, node)
@@ -92,11 +112,13 @@ class DeprecatedRemoved(SphinxDirective):
         self._add_label_node(label_text=label_text, node=node)
 
         # Note changes and return parsed node
-        self.env.get_domain("changeset").note_changeset(node)
-        return [node] + messages
+        domain = cast("ChangeSetDomain", self.env.get_domain("changeset"))
+        domain.note_changeset(node)
+        node_list: list[Node] = [node]
+        return node_list + messages
 
 
-def setup(app):
+def setup(app: Sphinx) -> dict[str, Any]:
     app.add_directive("deprecated-removed", DeprecatedRemoved)
     return {
         "version": "0.1",
