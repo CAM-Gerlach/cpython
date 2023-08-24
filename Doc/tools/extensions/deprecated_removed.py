@@ -9,6 +9,8 @@ from sphinx.addnodes import versionmodified
 from sphinx.locale import _ as sphinx_gettext
 from sphinx.util.docutils import SphinxDirective
 
+from restructured_data import restructured_data_class_hook
+
 if TYPE_CHECKING:
     from typing import Any
 
@@ -18,6 +20,7 @@ if TYPE_CHECKING:
     from sphinx.util.typing import OptionSpec
 
 
+@restructured_data_class_hook
 class DeprecatedRemoved(SphinxDirective):
     """Document deprecations and removals using structured data."""
 
@@ -119,9 +122,13 @@ class DeprecatedRemoved(SphinxDirective):
 
 
 def setup(app: Sphinx) -> dict[str, Any]:
+    app.setup_extension("restructured_data")
+
     app.add_directive("deprecated-removed", DeprecatedRemoved)
+
     return {
         "version": "0.1",
+        "env_version": 1,
         "parallel_read_safe": True,
         "parallel_write_safe": True,
     }

@@ -22,6 +22,7 @@ extensions = [
     'pyspecific',
     'sphinx.ext.coverage',
     'sphinx.ext.doctest',
+    'restructured_data',
     'deprecated_removed',
 ]
 
